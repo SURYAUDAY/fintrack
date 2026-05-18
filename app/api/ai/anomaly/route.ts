@@ -3,6 +3,11 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { canDo } from "@/lib/permissions";
 import { openai, OPENAI_MODEL } from "@/lib/openai";
+import {
+  checkAILimit,
+  getClientIp,
+  recordAIUsage,
+} from "@/lib/ai-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -64,8 +69,22 @@ export async function POST(req: Request) {
   const anomalies = detectAnomalies(parsed.data.series);
 
   if (anomalies.length === 0) {
+    // No anomalies → no OpenAI call → no quota consumed.
     return NextResponse.json({ anomalies: [] });
   }
+
+  // We're about to call OpenAI — enforce the rate limit now.
+  const ip = getClientIp(req);
+  const limit = await checkAILimit(ip, "anomaly");
+  if (!limit.allowed) {
+    // Return the deterministic anomalies without AI explanations so the
+    // dashboard chart still gets its badges even when AI is rate-limited.
+    for (const a of anomalies) {
+      a.explanation = `${a.direction === "spike" ? "Spike" : "Dip"} of ${a.percentFromMean.toFixed(0)}% vs the 12-month average.`;
+    }
+    return NextResponse.json({ anomalies, rateLimited: true });
+  }
+  await recordAIUsage(ip, "anomaly");
 
   // Have GPT explain each flagged month with a one-line rationale.
   try {

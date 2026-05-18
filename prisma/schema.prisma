@@ -179,3 +179,17 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+// Rate-limit ledger for AI endpoints — persisted because Vercel serverless
+// instances are ephemeral and in-memory state doesn't survive across them.
+// Keys: per (ip, endpoint) for the 1-call/24h limit, and a global count for
+// the 20/day backstop. Old rows can be cleaned up by a cron later.
+model AIUsage {
+  id        String   @id @default(cuid())
+  ip        String
+  endpoint  String   // "insights" | "anomaly" | "query" | "report"
+  createdAt DateTime @default(now())
+
+  @@index([ip, endpoint, createdAt])
+  @@index([createdAt])
+}

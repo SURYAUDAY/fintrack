@@ -4,6 +4,11 @@ import { auth } from "@/lib/auth";
 import { canDo } from "@/lib/permissions";
 import { openai, OPENAI_MODEL } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
+import {
+  checkAILimit,
+  getClientIp,
+  recordAIUsage,
+} from "@/lib/ai-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -48,6 +53,20 @@ export async function POST(req: Request) {
   const parsed = requestSchema.safeParse(body);
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+
+  const ip = getClientIp(req);
+  const limit = await checkAILimit(ip, "report");
+  if (!limit.allowed) {
+    const retryAfter = Math.max(
+      0,
+      Math.ceil(((limit.resetAt?.getTime() ?? Date.now()) - Date.now()) / 1000)
+    );
+    return NextResponse.json(
+      { error: limit.message, resetAt: limit.resetAt },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+  await recordAIUsage(ip, "report");
 
   const { month, year } = parsed.data;
   const start = new Date(year, month, 1);

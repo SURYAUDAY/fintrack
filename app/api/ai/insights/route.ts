@@ -3,7 +3,11 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { canDo } from "@/lib/permissions";
 import { openai, OPENAI_MODEL } from "@/lib/openai";
-import { rateLimit } from "@/lib/rate-limit";
+import {
+  checkAILimit,
+  getClientIp,
+  recordAIUsage,
+} from "@/lib/ai-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,19 +41,24 @@ export async function POST(req: Request) {
       { status: 403 }
     );
 
-  // 10 calls / hour per user
-  const rl = rateLimit(`ai:insights:${session.user.id}`, 10, 60 * 60 * 1000);
-  if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Rate limit exceeded. Try again later." },
-      { status: 429 }
-    );
-  }
-
   const body = await req.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success)
     return NextResponse.json({ error: "Invalid metrics" }, { status: 400 });
+
+  const ip = getClientIp(req);
+  const limit = await checkAILimit(ip, "insights");
+  if (!limit.allowed) {
+    const retryAfter = Math.max(
+      0,
+      Math.ceil(((limit.resetAt?.getTime() ?? Date.now()) - Date.now()) / 1000)
+    );
+    return NextResponse.json(
+      { error: limit.message, resetAt: limit.resetAt },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } }
+    );
+  }
+  await recordAIUsage(ip, "insights");
 
   const userMessage = `Metrics:
 - MRR: $${parsed.data.metrics.mrr.toLocaleString()}

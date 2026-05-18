@@ -46,8 +46,11 @@ export function QueryBar({ onSubmit, loading, className }: QueryBarProps) {
           Ask your data anything
         </h2>
       </div>
-      <p className="mb-5 text-sm text-slate-500">
+      <p className="mb-1 text-sm text-slate-500">
         Type a question in plain English — FinTrack AI will find the answer.
+      </p>
+      <p className="mb-5 text-xs text-slate-400">
+        Demo limit: 1 AI query per visitor per 24 hours.
       </p>
 
       <form onSubmit={handleSubmit} className="relative">
