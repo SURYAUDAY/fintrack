@@ -172,10 +172,6 @@ export default function RegisterPage() {
         <Button type="submit" fullWidth loading={submitting}>
           Create account
         </Button>
-
-        <p className="text-center text-xs text-slate-400">
-          By creating an account you agree to our Terms of Service.
-        </p>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">

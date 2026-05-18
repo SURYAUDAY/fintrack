@@ -10,7 +10,7 @@ A full-stack finance analytics dashboard for SaaS businesses: MRR / revenue / ex
 
 | | |
 |---|---|
-| URL | _add after Vercel deploy_ |
+| URL | <https://fintrack-ashen-xi.vercel.app> |
 | Admin login   | `admin@fintrack.com / Admin123!`   |
 | Manager login | `manager@fintrack.com / Manager123!` |
 | Viewer login  | `viewer@fintrack.com / Viewer123!`  |

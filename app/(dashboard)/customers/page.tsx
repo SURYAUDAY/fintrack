@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, Plus } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
 import { Badge, PlanBadge, StatusBadge } from "@/components/ui/Badge";
@@ -44,21 +44,13 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Customers
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Manage your customer base and track MRR.
-          </p>
-        </div>
-        {canWrite && (
-          <Button>
-            <Plus className="h-4 w-4" />
-            Add customer
-          </Button>
-        )}
+      <div>
+        <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          Customers
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Manage your customer base and track MRR.
+        </p>
       </div>
 
       {/* Summary cards */}

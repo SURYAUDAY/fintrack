@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Toggle } from "@/components/ui/Toggle";
 import { CustomerAvatar } from "@/components/ui/CustomerAvatar";
@@ -46,8 +45,6 @@ export default function SettingsPage() {
 
       <PreferencesSection
         currentBudget={Number(preferences?.monthlyBudget ?? 50000)}
-        currentCurrency={preferences?.currency ?? "USD"}
-        currentDateFormat={preferences?.dateFormat ?? "MM/DD/YYYY"}
         themeChecked={theme === "dark"}
         onThemeChange={(next) => setTheme(next ? "dark" : "light")}
         onSave={async (vals) => {
@@ -96,12 +93,6 @@ function ProfileSection({
     <Card title="Profile">
       <div className="mb-6 flex items-center gap-4">
         <CustomerAvatar name={defaultName || email} size="lg" />
-        <button
-          type="button"
-          className="text-sm font-medium text-brand-600 hover:underline"
-        >
-          Upload photo
-        </button>
       </div>
 
       <form
@@ -155,8 +146,6 @@ function PasswordSection() {
     newPassword: string;
     confirmPassword: string;
   }>();
-
-  const [twoFactor, setTwoFactor] = useState(false);
 
   const onSubmit = async (values: {
     currentPassword: string;
@@ -215,45 +204,22 @@ function PasswordSection() {
         </div>
       </form>
 
-      <div className="mt-6 border-t border-slate-200 pt-6 dark:border-slate-800">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              Two-factor authentication
-            </p>
-            <p className="text-xs text-slate-500">
-              Enhance your account security
-            </p>
-          </div>
-          <Toggle checked={twoFactor} onChange={setTwoFactor} />
-        </div>
-      </div>
     </Card>
   );
 }
 
 function PreferencesSection({
   currentBudget,
-  currentCurrency,
-  currentDateFormat,
   themeChecked,
   onThemeChange,
   onSave,
 }: {
   currentBudget: number;
-  currentCurrency: string;
-  currentDateFormat: string;
   themeChecked: boolean;
   onThemeChange: (next: boolean) => void;
-  onSave: (vals: {
-    monthlyBudget?: number;
-    currency?: string;
-    dateFormat?: string;
-  }) => Promise<void>;
+  onSave: (vals: { monthlyBudget?: number }) => Promise<void>;
 }) {
   const [budget, setBudget] = useState(String(currentBudget));
-  const [currency, setCurrency] = useState(currentCurrency);
-  const [dateFormat, setDateFormat] = useState(currentDateFormat);
 
   return (
     <Card title="Preferences">
@@ -289,45 +255,6 @@ function PreferencesSection({
                 Save
               </Button>
             </div>
-          }
-        />
-
-        <Row
-          label="Currency"
-          hint="Display currency"
-          control={
-            <Select
-              value={currency}
-              onChange={(e) => {
-                setCurrency(e.target.value);
-                onSave({ currency: e.target.value });
-              }}
-              className="w-44"
-            >
-              <option value="USD">USD — US Dollar</option>
-              <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — British Pound</option>
-              <option value="INR">INR — Indian Rupee</option>
-            </Select>
-          }
-        />
-
-        <Row
-          label="Date format"
-          hint="How dates are displayed"
-          control={
-            <Select
-              value={dateFormat}
-              onChange={(e) => {
-                setDateFormat(e.target.value);
-                onSave({ dateFormat: e.target.value });
-              }}
-              className="w-44"
-            >
-              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-            </Select>
           }
         />
       </div>

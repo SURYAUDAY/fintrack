@@ -19,6 +19,7 @@ import {
   type ExpenseRow,
 } from "@/hooks/useExpenses";
 import { usePermission } from "@/hooks/usePermission";
+import { usePreferences } from "@/hooks/usePreferences";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const CATEGORIES = ["Payroll", "Infrastructure", "Marketing", "SaaS Tools", "Other"];
@@ -31,6 +32,7 @@ export default function ExpensesPage() {
   const { data, isLoading } = useExpenses(
     activeCategory !== "all" ? { category: activeCategory } : {}
   );
+  const { data: preferences } = usePreferences();
   const createMutation = useCreateExpense();
   const updateMutation = useUpdateExpense();
   const deleteMutation = useDeleteExpense();
@@ -39,7 +41,7 @@ export default function ExpensesPage() {
   const [editing, setEditing] = useState<ExpenseRow | null>(null);
   const [deleting, setDeleting] = useState<ExpenseRow | null>(null);
 
-  const monthlyBudget = 50_000; // From settings in Phase 14
+  const monthlyBudget = Number(preferences?.monthlyBudget ?? 50_000);
   const thisMonthTotal =
     data?.totals.reduce((sum, t) => sum + t.total, 0) ?? 0;
   const recurringTotal =

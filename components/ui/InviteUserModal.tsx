@@ -56,9 +56,9 @@ export function InviteUserModal({ open, onClose }: InviteUserModalProps) {
       const result = await inviteMutation.mutateAsync(values);
       setTempPassword(result.tempPassword);
       setInvitedEmail(result.user.email);
-      toast.success("User invited");
+      toast.success("User created");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Invite failed");
+      toast.error(err instanceof Error ? err.message : "Could not create user");
     }
   };
 
@@ -66,7 +66,7 @@ export function InviteUserModal({ open, onClose }: InviteUserModalProps) {
     <Modal
       open={open}
       onClose={handleClose}
-      title={tempPassword ? "User invited" : "Invite team member"}
+      title={tempPassword ? "User created" : "Add team member"}
       width="md"
     >
       {tempPassword ? (
@@ -130,7 +130,7 @@ export function InviteUserModal({ open, onClose }: InviteUserModalProps) {
               Cancel
             </Button>
             <Button type="submit" loading={isSubmitting}>
-              Send invite
+              Create user
             </Button>
           </div>
         </form>

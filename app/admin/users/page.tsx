@@ -64,7 +64,7 @@ export default function AdminUsersPage() {
         </div>
         <Button onClick={() => setInviteOpen(true)}>
           <MailPlus className="h-4 w-4" />
-          Invite user
+          Add user
         </Button>
       </div>
 
